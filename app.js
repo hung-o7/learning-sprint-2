@@ -2,6 +2,9 @@
 const $ = id => document.getElementById(id);
 let steps = 0;
 const labels = { buffer: 'Local character buffer', frame: 'Saved frame pointer', return: 'Return address', other: 'Other adjacent memory' };
+
+// Render entirely from the controls and step count so reset and input changes
+// cannot leave stale memory cells or status text behind.
 function render() {
   let plan;
   try {
@@ -36,6 +39,7 @@ function render() {
       const offset = document.createElement('small'); offset.textContent = `+${cell.offset.toString(16).toUpperCase().padStart(2, '0')}`;
       const value = document.createElement('b'); value.textContent = cell.value === null ? '·' : cell.value === 0 ? 'NUL' : cell.value === 32 ? 'SP' : String.fromCharCode(cell.value);
       const hex = document.createElement('em'); hex.textContent = cell.value === null ? '—' : cell.value.toString(16).toUpperCase().padStart(2, '0');
+      // The label repeats color-coded state in text for screen-reader users.
       box.setAttribute('aria-label', `Offset ${cell.offset}, ${label}, ${cell.changed ? `written byte ${hex.textContent}${cell.overflow ? ', outside buffer' : ''}` : 'untouched original byte'}`);
       box.append(offset, value, hex); grid.append(box);
     }
@@ -52,6 +56,8 @@ function render() {
 function reset() { steps = 0; render(); }
 $('input').addEventListener('input', reset); $('size').addEventListener('change', reset); $('bounded').addEventListener('change', reset);
 $('step').addEventListener('click', () => { steps++; render(); });
+// snapshot() clamps this sentinel to the plan length; supported input is capped
+// at 24 characters, so 25 always means "show every byte, including NUL."
 $('run').addEventListener('click', () => { steps = 25; render(); }); $('reset').addEventListener('click', reset);
 document.querySelectorAll('[data-preset]').forEach(button => button.addEventListener('click', () => { $('input').value = button.dataset.preset; $('size').value = '8'; reset(); }));
 render();
