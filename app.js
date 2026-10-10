@@ -14,7 +14,6 @@ function render() {
     $('error').textContent = error.message; $('input').setAttribute('aria-invalid', 'true');
     $('step').disabled = $('run').disabled = true; $('regions').replaceChildren();
     for (const id of ['required', 'capacity', 'progress']) $(id).textContent = '—';
-    $('badge').textContent = 'Invalid input'; $('badge').className = 'badge danger';
     $('status-title').textContent = 'Update the input to continue';
     $('status').textContent = 'This model uses printable ASCII so that one character always equals one byte.'; return;
   }
@@ -22,8 +21,6 @@ function render() {
   $('required').textContent = `${plan.required} B`; $('capacity').textContent = `${plan.capacity} B`;
   $('progress').textContent = `${state.written} / ${plan.bytes.length}`;
   $('step').disabled = $('run').disabled = state.done;
-  $('badge').textContent = state.overflow ? 'Overflow' : state.done ? 'Within bounds' : state.written ? 'Copying' : 'Ready';
-  $('badge').className = `badge${state.overflow ? ' danger' : ''}`;
   $('regions').replaceChildren();
   for (const [key, label] of Object.entries(labels)) {
     const cells = state.cells.filter(cell => cell.region === key); if (!cells.length) continue;
